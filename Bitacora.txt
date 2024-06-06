@@ -1,0 +1,4 @@
+Codigo para entrar a al discord configurado:
+
+https://discord.com/oauth2/authorize?client_id=1245856498727518249&permissions=0&scope=bot
+
