@@ -18,7 +18,7 @@ async def on_message(message):
         await message.channel.send('Hola!')
  
     if message.content.startswith('imagen'):
-        await message.channel.send(file=discord.File('download.jpg'))
+        await message.channel.send(file=discord.File('d8.png'))
  
     if message.content.startswith('video'):
         await message.channel.send(file=discord.File('sample-mp4-file-small.mp4'))
@@ -29,4 +29,4 @@ async def on_message(message):
     if message.content.startswith('file'):
         await message.channel.send(file=discord.File('sample.pdf'))
  
-client.run('<Your Bot Token>')
+client.run('MTI0NTg1NjQ5ODcyNzUxODI0OQ.GYbZ2A._C9eSow0XgiGyzrmoyyrG63ysstH8JULHxhNk4')
