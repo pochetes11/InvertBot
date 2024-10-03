@@ -2,112 +2,8 @@ import discord
 from discord.ext import commands
 
 # Define los intents que el bot necesita
-intents = discord.Intents.all()
-
-# Crear el bot usando commands.Bot para manejar comandos
-bot = commands.Bot(command_prefix='!', description="InvertBot", intents=intents)
-
-# Simulación de una base de datos de acciones con información de dividendos
-acciones = {
-    'AAPL': {'nombre': 'Apple Inc.', 'precio': 150, 'dividendo': 0.62, 'yield': 0.69},
-    'MSFT': {'nombre': 'Microsoft Corporation', 'precio': 300, 'dividendo': 2.24, 'yield': 0.86},
-    'JNJ': {'nombre': 'Johnson & Johnson', 'precio': 170, 'dividendo': 1.06, 'yield': 2.63},
-    'PG': {'nombre': 'Procter & Gamble Co.', 'precio': 120, 'dividendo': 0.87, 'yield': 2.53},
-    'KO': {'nombre': 'The Coca-Cola Company', 'precio': 50, 'dividendo': 1.68, 'yield': 3.27}
-}
-
-# Máximo de inversión permitido
-MAX_INVERSION = 1000
-
-# Comando para buscar acciones por criterios de dividendos
-@bot.command()
-async def buscar(ctx, criterio: str):
-    criterio = float(criterio)
-    resultados = [accion for accion, info in acciones.items() if info['yield'] > criterio]
-    
-    if resultados:
-        await ctx.send(f"Acciones con yield > {criterio}%: {', '.join(resultados)}")
-    else:
-        await ctx.send(f"No se encontraron acciones con yield > {criterio}%")
-
-# Comando para obtener información detallada de una acción específica
-@bot.command()
-async def info(ctx, accion: str):
-    if accion.upper() in acciones:
-        info_accion = acciones[accion.upper()]
-        mensaje = f"Información de {info_accion['nombre']}:\n"
-        mensaje += f"Precio: ${info_accion['precio']} por acción\n"
-        mensaje += f"Dividendo: ${info_accion['dividendo']} por acción\n"
-        mensaje += f"Yield: {info_accion['yield']}%"
-        await ctx.send(mensaje)
-    else:
-        await ctx.send(f"No se encontró información para la acción {accion}")
-
-# Comando para configurar notificaciones de dividendos
-@bot.command()
-async def notificar(ctx):
-    # Implementa la lógica para configurar notificaciones de dividendos
-    await ctx.send("Notificaciones de dividendos configuradas")
-
-# Comando para invertir en una acción
-@bot.command()
-async def invertir(ctx, accion: str, cantidad: int):
-    if accion.upper() in acciones:
-        precio_accion = acciones[accion.upper()]['precio']
-        total_inversion = precio_accion * cantidad
-        
-        # Preguntar al usuario cuánto dinero tiene disponible para invertir
-        await ctx.send(f"¿Cuánto dinero tienes disponible para invertir? (Máximo ${MAX_INVERSION})")
-        
-        def check(m):
-            return m.author == ctx.author and m.channel == ctx.channel and m.content.isdigit()
-        
-        try:
-            mensaje = await bot.wait_for('message', check=check, timeout=30)
-            dinero_disponible = int(mensaje.content)
-            
-            if dinero_disponible > MAX_INVERSION:
-                await ctx.send(f"No puedes invertir más de ${MAX_INVERSION}.")
-            elif dinero_disponible < total_inversion:
-                await ctx.send(f"No tienes suficiente dinero para invertir ${total_inversion}.")
-            else:
-                mensaje = f"Invertiste en {cantidad} acciones de {acciones[accion.upper()]['nombre']}.\n"
-                mensaje += f"Costo total de la inversión: ${total_inversion}"
-                await ctx.send(mensaje)
-        except asyncio.TimeoutError:
-            await ctx.send("Tiempo de espera agotado. Intenta de nuevo más tarde.")
-    else:
-        await ctx.send(f"No se encontró información para la acción {accion}")
-
-# Evento al iniciar el bot usando discord.Client
-@bot.event
-async def on_ready():
-    print(f'Bot iniciado como {bot.user.name}')
-
-# Manejo de mensajes usando discord.Client
-@bot.event
-async def on_message(message):
-    print("message-->", message.content)  # Imprimir el contenido del mensaje recibido
-
-    if message.author == bot.user:
-        return
-
-    if message.content.startswith('hola'):
-        await message.channel.send('Hola!')
-
-    # Puedes seguir agregando más lógica de manejo de mensajes aquí
-
-    await bot.process_commands(message)  # Importante para que los comandos funcionen correctamente
-# Token de tu bot - recuerda mantenerlo seguro y no compartirlo públicamente
-bot.run('MTI0NTg1NjQ5ODcyNzUxODI0OQ.GYbZ2A._C9eSow0XgiGyzrmoyyrG63ysstH8JULHxhNk4')
-
-
-import discord
-from discord.ext import commands
-import asyncio
-
-# Define los intents que el bot necesita
-intents = discord.Intents.all()
+intents = discord.Intents.default()
+intents.messages = True
 
 # Crear el bot usando commands.Bot para manejar comandos
 bot = commands.Bot(command_prefix='!', description="InvertBot", intents=intents)
@@ -126,7 +22,12 @@ perfiles = {
         'horizonte': 'Medio a largo plazo',
         'estrategia': 'Bonos, acciones de dividendos, fondos de inversión'
     },
-    # Añadir más perfiles según corresponda...
+    'Agresivo': {
+        'tolerancia_riesgo': 'Alta',
+        'objetivo': 'Crecimiento agresivo del capital',
+        'horizonte': 'Largo plazo',
+        'estrategia': 'Acciones de crecimiento, criptomonedas, inversiones en startups'
+    }
 }
 
 # Comando para determinar el perfil del inversor
@@ -201,29 +102,53 @@ async def perfil(ctx):
         opciones_formato = "\n".join(opciones)
         await ctx.send(f"{pregunta}\n{opciones_formato}")
 
+        # Check for valid responses
         def check(m):
             return m.author == ctx.author and m.content.upper() in [opcion[0] for opcion in opciones]
 
-        try:
-            mensaje = await bot.wait_for('message', check=check, timeout=60.0)
-            respuestas[pregunta] = mensaje.content.upper()
-            await ctx.send(f"Respuesta registrada: {mensaje.content.upper()}")
-        except asyncio.TimeoutError:
-            await ctx.send("Se agotó el tiempo para responder. Por favor, intenta nuevamente.")
-            return
+        # Espera hasta que el usuario responda
+        mensaje = await bot.wait_for('message', check=check)
+        respuestas[pregunta] = mensaje.content.upper()
+        await ctx.send(f"Respuesta registrada: {mensaje.content.upper()}")
 
     # Determinar el perfil basado en las respuestas
-    perfil_sugerido = determinar_perfil(respuestas)  # Función para determinar el perfil basado en respuestas
+    perfil_sugerido = determinar_perfil(respuestas)
     await ctx.send(f"Tu perfil de inversor sugerido es: {perfil_sugerido}")
     await ctx.send(f"Estrategia recomendada: {perfiles[perfil_sugerido]['estrategia']}")
 
 def determinar_perfil(respuestas):
-    # Lógica simplificada para determinar el perfil basado en las respuestas
-    # Ejemplo básico: perfil conservador si la tolerancia al riesgo es baja
-    if respuestas.get("¿Cómo describiría su tolerancia al riesgo?", "").upper() == 'A':
+    puntaje = 0
+
+    # Evaluar respuestas para determinar puntaje
+    puntaje += evaluar_tolerancia_riesgo(respuestas)
+    puntaje += evaluar_horizonte_inversion(respuestas)
+    # Añadir más evaluaciones de preguntas...
+
+    # Determinar perfil basado en puntajes
+    if puntaje < 0:
         return 'Conservador'
-    # Añadir más lógica para determinar otros perfiles
-    return 'Moderado'  # Perfil por defecto si no se cumple ninguna condición específica
+    elif puntaje < 2:
+        return 'Moderado'
+    else:
+        return 'Agresivo'
+
+def evaluar_tolerancia_riesgo(respuestas):
+    """Evalúa la tolerancia al riesgo del inversor y ajusta el puntaje."""
+    if respuestas.get("¿Cómo describiría su tolerancia al riesgo?", "").upper() == 'A':
+        return -2
+    elif respuestas.get("¿Cómo describiría su tolerancia al riesgo?", "").upper() == 'B':
+        return -1
+    elif respuestas.get("¿Cómo describiría su tolerancia al riesgo?", "").upper() == 'C':
+        return 1
+    return 0  # Valor predeterminado si no se encuentra respuesta
+
+def evaluar_horizonte_inversion(respuestas):
+    """Evalúa el horizonte de inversión del inversor y ajusta el puntaje."""
+    if respuestas.get("¿Cuál es el horizonte temporal para sus inversiones?", "").upper() == 'D':
+        return 2
+    elif respuestas.get("¿Cuál es el horizonte temporal para sus inversiones?", "").upper() == 'C':
+        return 1
+    return 0  # Valor predeterminado si no se encuentra respuesta
 
 # Evento al iniciar el bot
 @bot.event
@@ -231,4 +156,5 @@ async def on_ready():
     print(f'Bot iniciado como {bot.user.name}')
 
 # Token de tu bot - recuerda mantenerlo seguro y no compartirlo públicamente
-bot.run('MTI0NTg1NjQ5ODcyNzUxODI0OQ.GYbZ2A._C9eSow0XgiGyzrmoyyrG63ysstH8JULHxhNk4')
+bot.run('MTI0NTg1NjQ5ODcyNzUxODI0OQ.GYbZ2A._C9eSow0XgiGyzrmoyyrG63ysstH8JULHxhNk4')  # Cambia esto por tu token real
+
