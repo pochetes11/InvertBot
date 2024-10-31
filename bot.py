@@ -19,7 +19,7 @@ async def on_ready():
 def run_bot():
     while True:
         try:
-            bot.run('MTI0NTg1NjQ5ODcyNzUxODI0OQ.GYbZ2A._C9eSow0XgiGyzrmoyyrG63ysstH8JULHxhNk4')
+            bot.run('')
         except Exception as e:
             print(f"Error: {e}, reiniciando en 5 segundos...")
             time.sleep(5)  # Esperar 5 segundos antes de reiniciar
