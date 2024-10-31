@@ -200,6 +200,6 @@ async def on_ready():
     print(f'Bot iniciado como {bot.user.name}')
 
 # Token de tu bot - recuerda mantenerlo seguro y no compartirlo públicamente
-bot.run('MTI0NTg1NjQ5ODcyNzUxODI0OQ.GYbZ2A._C9eSow0XgiGyzrmoyyrG63ysstH8JULHxhNk4')
+bot.run('')
 
 
