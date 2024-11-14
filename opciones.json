@@ -1,0 +1,58 @@
+{
+  "opciones_inversion": [
+    {
+      "nombre": "Bonos del gobierno",
+      "tipo_inversion": "Bonos",
+      "valor_perfil_inversor": 2,
+      "perfil": "Conservador"
+    },
+    {
+      "nombre": "Acciones de empresas consolidadas",
+      "tipo_inversion": "Acciones",
+      "valor_perfil_inversor": 4,
+      "perfil": "Moderado"
+    },
+    {
+      "nombre": "Fondos mutuos de renta fija",
+      "tipo_inversion": "Fondos",
+      "valor_perfil_inversor": 3,
+      "perfil": "Conservador"
+    },
+    {
+      "nombre": "Ethereum",
+      "tipo_inversion": "Criptomonedas",
+      "valor_perfil_inversor": 7,
+      "perfil": "Agresivo"
+    },
+    {
+      "nombre": "Bonos corporativos de alto rendimiento",
+      "tipo_inversion": "Bonos",
+      "valor_perfil_inversor": 6,
+      "perfil": "Moderado"
+    },
+    {
+      "nombre": "Acciones de startups tecnológicas",
+      "tipo_inversion": "Acciones",
+      "valor_perfil_inversor": 8,
+      "perfil": "Agresivo"
+    },
+    {
+      "nombre": "Inversión en bienes raíces",
+      "tipo_inversion": "Bienes raíces",
+      "valor_perfil_inversor": 5,
+      "perfil": "Moderado"
+    },
+    {
+      "nombre": "Oro y metales preciosos",
+      "tipo_inversion": "Commodities",
+      "valor_perfil_inversor": 3,
+      "perfil": "Conservador"
+    },
+    {
+      "nombre": "Acciones de tecnología emergente",
+      "tipo_inversion": "Acciones",
+      "valor_perfil_inversor": 9,
+      "perfil": "Agresivo"
+    }
+  ]
+}
