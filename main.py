@@ -6,7 +6,7 @@ import json
 import sqlite3
 
 # Conectar a la base de datos usando 'with' para asegurar el cierre automático
-with sqlite3.connect('BDD.SQL') as conn:
+with sqlite3.connect('./tablas.sql') as conn:
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM usuarios")
     results = cursor.fetchall()
@@ -14,7 +14,7 @@ with sqlite3.connect('BDD.SQL') as conn:
 
 def guardar_respuestas_en_bd(usuario_id, respuestas):
     # Conectar a la base de datos usando 'with' para asegurar el cierre automático
-    with sqlite3.connect('BDD.SQL') as conn:
+    with sqlite3.connect('tablas.sql') as conn:
         cursor = conn.cursor()
 
         # Insertar las respuestas del perfil en la tabla 'respuestas_perfil'
@@ -255,7 +255,6 @@ def determinar_perfil(respuestas):
         return 'Moderado'
     else:
         return 'Agresivo'
-
 
 def evaluar_tolerancia_riesgo(respuestas):
     """Evalúa la tolerancia al riesgo del inversor y ajusta el puntaje."""
