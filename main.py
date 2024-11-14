@@ -2,7 +2,64 @@ import discord
 from discord.ext import commands
 import random
 from datetime import datetime
+import json
+import sqlite3
 
+# Conectar a la base de datos usando 'with' para asegurar el cierre automático
+with sqlite3.connect('BDD.SQL') as conn:
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM usuarios")
+    results = cursor.fetchall()
+    print(results)
+
+def guardar_respuestas_en_bd(usuario_id, respuestas):
+    # Conectar a la base de datos usando 'with' para asegurar el cierre automático
+    with sqlite3.connect('BDD.SQL') as conn:
+        cursor = conn.cursor()
+
+        # Insertar las respuestas del perfil en la tabla 'respuestas_perfil'
+    cursor.execute("""
+            INSERT OR REPLACE INTO respuestas_perfil (
+                usuario_id, objetivo_inversion, horizonte_temporal, tiempo_mantener,
+                nivel_experiencia, capital_inicial, ingreso_anual, nivel_deuda,
+                porcentaje_ingresos_invertir, tolerancia_riesgo, inversiones_activas,
+                ingresos_o_crecimiento, reaccion_perdida, productos_financieros,
+                preferencias_sector, mercados_nacionales_o_internacionales, conocimiento_mercado,
+                volatilidad_mercado, sostenibilidad, preocupaciones_inversiones, expectativa_rendimiento
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            usuario_id, respuestas.get("¿Cuál es su principal objetivo de inversión?", ""),
+            respuestas.get("¿Cuál es su horizonte temporal para sus inversiones?", ""),
+            respuestas.get("¿Cuánto tiempo está dispuesto a mantener sus inversiones sin necesidad de acceder a los fondos?", ""),
+            respuestas.get("¿Cuál es su nivel de experiencia con inversiones?", ""),
+            respuestas.get("¿Cuánto capital está dispuesto a invertir inicialmente?", ""),
+            respuestas.get("¿Cuál es su ingreso anual aproximado?", ""),
+            respuestas.get("¿Cuál es su nivel de deuda actual y cómo maneja sus obligaciones financieras?", ""),
+            respuestas.get("¿Qué porcentaje de sus ingresos está dispuesto a invertir?", ""),
+            respuestas.get("¿Cómo describiría su tolerancia al riesgo?", ""),
+            respuestas.get("¿Cuáles son sus inversiones actuales?", ""),
+            respuestas.get("¿Está buscando inversiones que generen ingresos regulares o crecimiento del capital a largo plazo?", ""),
+            respuestas.get("¿Cómo reaccionaría si su inversión principal pierde un 10% de su valor en un corto período de tiempo?", ""),
+            respuestas.get("¿Qué tipo de productos financieros prefiere o ha utilizado anteriormente?", ""),
+            respuestas.get("¿Tiene alguna preferencia en cuanto a sectores o industrias en los que invertir?", ""),
+            respuestas.get("¿Está dispuesto a invertir en mercados internacionales o prefiere limitarse a mercados nacionales?", ""),
+            respuestas.get("¿Cuánto conocimiento tiene sobre las tendencias y movimientos del mercado financiero?", ""),
+            respuestas.get("¿Cuál es su nivel de comodidad con la volatilidad del mercado?", ""),
+            respuestas.get("¿Qué importancia le da a la sostenibilidad y a las inversiones socialmente responsables?", ""),
+            respuestas.get("¿Tiene alguna preocupación específica respecto a sus inversiones?", ""),
+            respuestas.get("¿Cuál es su expectativa de rendimiento anual para sus inversiones?", "")
+        ))
+
+conn.commit()
+
+# Cargar las opciones de inversión desde el archivo JSON
+with open('opciones.json', 'r') as f:
+    opciones_json = json.load(f)
+
+# Función para obtener opciones de inversión basadas en el perfil
+def obtener_opciones_por_perfil(perfil):
+    opciones_filtradas = [opcion for opcion in opciones_json['opciones_inversion'] if opcion['perfil'] == perfil]
+    return opciones_filtradas
 
 # Define los intents que el bot necesita
 intents = discord.Intents.default()
@@ -150,27 +207,55 @@ async def perfil(ctx):
         mensaje = await bot.wait_for('message', check=check)
         respuestas[pregunta] = mensaje.content.upper()
         await ctx.send(f"Respuesta registrada: {mensaje.content.upper()}")
-
+    
     # Determinar el perfil basado en las respuestas
     perfil_sugerido = determinar_perfil(respuestas)
     await ctx.send(f"Tu perfil de inversor sugerido es: {perfil_sugerido}")
-    await ctx.send(f"Estrategia recomendada: {perfiles[perfil_sugerido]['estrategia']}")
+    await ctx.send(f"Estrategia recomendada: {perfil[perfil_sugerido]['estrategia']}")
+
+    # Mostrar opciones de inversión recomendadas basadas en el perfil
+    opciones_recomendadas = obtener_opciones_por_perfil(perfil_sugerido)
+    opciones_str = "\n".join([f"{opcion['nombre']} - {opcion['tipo_inversion']}" for opcion in opciones_recomendadas])
+    await ctx.send(f"Opciones de inversión recomendadas:\n{opciones_str}")
+
+def evaluar_capital_inicial(respuestas):
+    """Evalúa el capital inicial que el inversor está dispuesto a invertir."""
+    if respuestas.get("¿Cuánto capital está dispuesto a invertir inicialmente?", "").upper() == 'A':
+        return -2  # Menos de $1,000, perfil conservador
+    elif respuestas.get("¿Cuánto capital está dispuesto a invertir inicialmente?", "").upper() == 'B':
+        return 0   # $1,000 - $10,000, perfil moderado
+    elif respuestas.get("¿Cuánto capital está dispuesto a invertir inicialmente?", "").upper() == 'C':
+        return 2   # $10,000 - $50,000, perfil moderado
+    elif respuestas.get("¿Cuánto capital está dispuesto a invertir inicialmente?", "").upper() == 'D':
+        return 4   # Más de $50,000, perfil agresivo
+    return 0
+
+
+def evaluar_experiencia_inversion(respuestas):
+    """Evalúa el nivel de experiencia del inversor."""
+    if respuestas.get("¿Cuál es su nivel de experiencia con inversiones?", "").upper() == 'A':
+        return -2  # Principiante, perfil conservador
+    elif respuestas.get("¿Cuál es su nivel de experiencia con inversiones?", "").upper() == 'B':
+        return 0   # Intermedio, perfil moderado
+    elif respuestas.get("¿Cuál es su nivel de experiencia con inversiones?", "").upper() == 'C':
+        return 2   # Avanzado, perfil agresivo
+    return 0
 
 def determinar_perfil(respuestas):
     puntaje = 0
-
-    # Evaluar respuestas para determinar puntaje
     puntaje += evaluar_tolerancia_riesgo(respuestas)
     puntaje += evaluar_horizonte_inversion(respuestas)
-    # Añadir más evaluaciones de preguntas...
+    puntaje += evaluar_capital_inicial(respuestas)
+    puntaje += evaluar_experiencia_inversion(respuestas)
+    # Agregar más evaluaciones si es necesario...
 
-    # Determinar perfil basado en puntajes
     if puntaje < 0:
         return 'Conservador'
-    elif puntaje < 2:
+    elif puntaje < 5:
         return 'Moderado'
     else:
         return 'Agresivo'
+
 
 def evaluar_tolerancia_riesgo(respuestas):
     """Evalúa la tolerancia al riesgo del inversor y ajusta el puntaje."""
@@ -200,6 +285,6 @@ async def on_ready():
     print(f'Bot iniciado como {bot.user.name}')
 
 # Token de tu bot - recuerda mantenerlo seguro y no compartirlo públicamente
-bot.run('')
+bot.run('MTI0NTg1NjQ5ODcyNzUxODI0OQ.GYbZ2A._C9eSow0XgiGyzrmoyyrG63ysstH8JULHxhNk4')
 
 
