@@ -14,7 +14,6 @@ CREATE TABLE IF NOT EXISTS inversiones (
     FOREIGN KEY (id_discord) REFERENCES usuarios(id_discord)
 );
 
-
 CREATE TABLE IF NOT EXISTS respuestas_perfil (
     usuario_id TEXT PRIMARY KEY,
     objetivo_inversion TEXT,
