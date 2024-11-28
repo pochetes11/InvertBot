@@ -1,7 +1,8 @@
 import random
 
+# Opciones de inversión predefinidas
 def obtener_opciones_inversion():
-    # JSON de opciones de inversión
+    # Opciones de inversión definidas con perfiles específicos
     opciones_inversion_json = [
         {"nombre": "Bonos del gobierno", "tipo_inversion": "Bonos", "valor_perfil_inversor": 2, "perfil": "Conservador"},
         {"nombre": "Acciones de empresas consolidadas", "tipo_inversion": "Acciones", "valor_perfil_inversor": 4, "perfil": "Moderado"},
@@ -14,7 +15,7 @@ def obtener_opciones_inversion():
         {"nombre": "Acciones de tecnología emergente", "tipo_inversion": "Acciones", "valor_perfil_inversor": 9, "perfil": "Agresivo"}
     ]
     
-    # Opciones predefinidas
+    # Opciones predefinidas no asignadas a un perfil específico
     opciones_predefinidas = [
         "Bonos de empresa A", "Bonos de empresa B", "Acciones de empresa C", "Acciones de empresa D",
         "Ethereum (ETH)", "Bitcoin (BTC)", "Litecoin (LTC)", "Fondos de inversión en bienes raíces", 
@@ -27,15 +28,18 @@ def obtener_opciones_inversion():
         "Bonos de empresas tecnológicas", "Criptomonedas estables", "Fondos de inversión en tecnología", 
         "Acciones de servicios públicos"
     ]
-    
-    # Combinar las opciones predefinidas con el JSON
-    opciones_combinadas = opciones_inversion_json + [{"nombre": opcion, "tipo_inversion": "Variedad", "valor_perfil_inversor": random.randint(1, 10), "perfil": "Diversificado"} for opcion in opciones_predefinidas]
 
-    # Eliminar duplicados, si es necesario (usando el nombre como clave)
+    # Combinar las opciones predefinidas con las opciones definidas por el perfil
+    opciones_combinadas = opciones_inversion_json + [
+        {"nombre": opcion, "tipo_inversion": "Variedad", "valor_perfil_inversor": random.randint(1, 10), "perfil": "Diversificado"} 
+        for opcion in opciones_predefinidas
+    ]
+
+    # Eliminar duplicados basados en el nombre de la inversión
     opciones_combinadas_unicas = {opcion["nombre"]: opcion for opcion in opciones_combinadas}.values()
 
     # Convertir a lista y mezclar las opciones aleatoriamente
-    opciones_combinadas_unicas_lista = list(opciones_combinadas_unicas)
-    random.shuffle(opciones_combinadas_unicas_lista)
+    opciones_combinadas_lista = list(opciones_combinadas_unicas)
+    random.shuffle(opciones_combinadas_lista)
 
-    return opciones_combinadas_unicas_lista
+    return opciones_combinadas_lista

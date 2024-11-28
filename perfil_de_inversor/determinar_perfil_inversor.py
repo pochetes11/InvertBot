@@ -17,7 +17,7 @@ def obtener_cuestionario_para_determinar_perfil_del_inversor():
          ["A) Principiante", "B) Intermedio", "C) Avanzado"]),
         
         ("¿Cuánto capital está dispuesto a invertir inicialmente?",
-         ["A) Menos de $1,000", "B) $1,000 - $10,000", "C) $10,000 - $50,000", "D) Más de $50,000"]),
+         ["A) Menos de $1,000", "B) $1, 000 - $10,000", "C) $10,000 - $50,000", "D) Más de $50,000"]),
         
         ("¿Cuál es su ingreso anual aproximado?",
          ["A) Menos de $20,000", "B) $20,000 - $50,000", "C) $50,000 - $100,000", "D) Más de $100,000"]),
@@ -119,7 +119,7 @@ def evaluar_tolerancia_riesgo(respuestas):
     elif respuestas.get("¿Cómo describiría su tolerancia al riesgo?", "").upper() == 'B':
         return 0
     elif respuestas.get("¿Cómo describiría su tolerancia al riesgo?", "").upper() == 'C':
-        return 2
+        return 2 
     return 0
 
 def evaluar_horizonte_inversion(respuestas):
