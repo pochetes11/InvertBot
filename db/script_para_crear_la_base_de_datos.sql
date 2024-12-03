@@ -4,6 +4,12 @@ CREATE TABLE IF NOT EXISTS usuarios (
     fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS progreso_cuestionario (
+    usuario_id TEXT PRIMARY KEY,
+    respuestas TEXT,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id_discord)
+);
+
 
 CREATE TABLE IF NOT EXISTS inversiones (
     id_inversion INTEGER PRIMARY KEY AUTOINCREMENT,

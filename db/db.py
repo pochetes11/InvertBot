@@ -1,4 +1,5 @@
 import sqlite3
+import json
 
 # Función para inicializar la base de datos
 def inicializar_db():
@@ -41,6 +42,14 @@ def inicializar_db():
         )
     ''')
     
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS progreso (
+            usuario_id TEXT PRIMARY KEY,
+            respuestas JSON,
+            FOREIGN KEY (usuario_id) REFERENCES usuarios(id_discord)
+        )
+    ''')
+
     conn.commit()
     conn.close()
 
@@ -139,6 +148,15 @@ def obtener_capital(usuario_id):
     conn.close()
     return capital[0] if capital else 0
 
+# Función para obtener el capital actual de un usuario
+def obtener_capital(usuario_id):
+    conn = sqlite3.connect('perfil_inversion.db')
+    c = conn.cursor()
+    c.execute("SELECT capital FROM capital WHERE usuario_id = ?", (usuario_id,))
+    capital = c.fetchone()
+    conn.close()
+    return capital[0] if capital else 0
+
 
 # Función para actualizar el capital del usuario (agregar o restar dinero)
 def actualizar_capital(usuario_id, monto):
@@ -149,3 +167,33 @@ def actualizar_capital(usuario_id, monto):
 
     # Retornamos el nuevo capital
     return capital_actual + monto
+
+# Función para guardar el progreso de las respuestas
+def guardar_progreso(usuario_id, respuestas_json):
+    conn = sqlite3.connect('perfil_inversion.db')
+    c = conn.cursor()
+    c.execute('''
+        INSERT OR REPLACE INTO progreso_perfil (usuario_id, respuestas)
+        VALUES (?, ?)
+    ''', (usuario_id, respuestas_json))
+    conn.commit()
+    conn.close()
+
+# Función para obtener el progreso guardado
+def obtener_progreso(usuario_id):
+    conn = sqlite3.connect('perfil_inversion.db')
+    c = conn.cursor()
+    c.execute('SELECT respuestas FROM progreso_perfil WHERE usuario_id = ?', (usuario_id,))
+    progreso = c.fetchone()
+    conn.close()
+    if progreso:
+        return progreso[0]
+    return None
+
+# Función para eliminar el progreso del perfil
+def eliminar_progreso(usuario_id):
+    conn = sqlite3.connect('perfil_inversion.db')
+    c = conn.cursor()
+    c.execute('DELETE FROM progreso_perfil WHERE usuario_id = ?', (usuario_id,))
+    conn.commit()
+    conn.close()

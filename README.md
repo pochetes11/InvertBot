@@ -21,5 +21,5 @@
     obtener_opciones_de_inversion_de_acuerdo_al_perfil_del_inversor.py    # Este archivo maneja la lógica para obtener opciones de inversión basadas en el perfil del inversor.
 
 Comando para iniciar: pipenv run bot
-
+pip install pipenv
 siempre fijarse que el pipenv este instalado con pipenv --version
