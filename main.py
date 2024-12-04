@@ -4,10 +4,8 @@ import json
 from db.db import (
     inicializar_db,
     obtener_capital,
-    obtener_usuario,
     realizar_inversion,
     registrar_usuario,
-    iniciar_sesion,
     obtener_perfil_usuario,
     guardar_perfil_usuario,
     actualizar_capital,
