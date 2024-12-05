@@ -174,4 +174,4 @@ async def on_ready():
     print(f'Bot iniciado como {bot.user.name}')
 
 # Ejecutar el bot con el token
-bot.run('MTI0NTg1NjQ5ODcyNzUxODI0OQ.GWJP7Y.MO85NQtXoOfuYaM4xoQBaee1ec_epHCNdOCrME')  # No olvides reemplazarlo por tu token real
+bot.run('')  # No olvides reemplazarlo por tu token real
