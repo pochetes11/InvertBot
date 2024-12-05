@@ -1,58 +1,85 @@
 {
   "opciones_inversion": [
     {
+      "id": 1,
       "nombre": "Bonos del gobierno",
       "tipo_inversion": "Bonos",
       "valor_perfil_inversor": 2,
-      "perfil": "Conservador"
+      "perfil": "Conservador",
+      "precio": 1000,
+      "descripcion": "Bonos seguros emitidos por el gobierno con bajo riesgo y retorno estable."
     },
     {
+      "id": 2,
       "nombre": "Acciones de empresas consolidadas",
       "tipo_inversion": "Acciones",
       "valor_perfil_inversor": 4,
-      "perfil": "Moderado"
+      "perfil": "Moderado",
+      "precio": 50,
+      "descripcion": "Acciones de empresas consolidadas con historial sólido de crecimiento."
     },
     {
+      "id": 3,
       "nombre": "Fondos mutuos de renta fija",
       "tipo_inversion": "Fondos",
       "valor_perfil_inversor": 3,
-      "perfil": "Conservador"
+      "perfil": "Conservador",
+      "precio": 500,
+      "descripcion": "Fondos diversificados con enfoque en renta fija, ideales para minimizar riesgos."
     },
     {
+      "id": 4,
       "nombre": "Ethereum",
       "tipo_inversion": "Criptomonedas",
       "valor_perfil_inversor": 7,
-      "perfil": "Agresivo"
+      "perfil": "Agresivo",
+      "precio": 1800,
+      "descripcion": "Una criptomoneda popular y líder en contratos inteligentes."
     },
     {
+      "id": 5,
       "nombre": "Bonos corporativos de alto rendimiento",
       "tipo_inversion": "Bonos",
       "valor_perfil_inversor": 6,
-      "perfil": "Moderado"
+      "perfil": "Moderado",
+      "precio": 2000,
+      "descripcion": "Bonos emitidos por empresas con mayores rendimientos, pero mayor riesgo."
     },
     {
+      "id": 6,
       "nombre": "Acciones de startups tecnológicas",
       "tipo_inversion": "Acciones",
       "valor_perfil_inversor": 8,
-      "perfil": "Agresivo"
+      "perfil": "Agresivo",
+      "precio": 20,
+      "descripcion": "Acciones de startups con alto potencial de crecimiento y riesgo."
     },
     {
+      "id": 7,
       "nombre": "Inversión en bienes raíces",
       "tipo_inversion": "Bienes raíces",
       "valor_perfil_inversor": 5,
-      "perfil": "Moderado"
+      "perfil": "Moderado",
+      "precio": 15000,
+      "descripcion": "Inversiones en propiedades con potencial de apreciación y generación de ingresos."
     },
     {
+      "id": 8,
       "nombre": "Oro y metales preciosos",
       "tipo_inversion": "Commodities",
       "valor_perfil_inversor": 3,
-      "perfil": "Conservador"
+      "perfil": "Conservador",
+      "precio": 1800,
+      "descripcion": "Oro y otros metales preciosos como activos seguros en tiempos de incertidumbre."
     },
     {
+      "id": 9,
       "nombre": "Acciones de tecnología emergente",
       "tipo_inversion": "Acciones",
       "valor_perfil_inversor": 9,
-      "perfil": "Agresivo"
+      "perfil": "Agresivo",
+      "precio": 100,
+      "descripcion": "Acciones de empresas tecnológicas innovadoras con alto potencial de retorno."
     }
   ]
 }
