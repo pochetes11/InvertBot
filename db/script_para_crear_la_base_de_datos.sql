@@ -10,13 +10,12 @@ CREATE TABLE IF NOT EXISTS progreso_cuestionario (
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id_discord)
 );
 
-
 CREATE TABLE IF NOT EXISTS inversiones (
     id_inversion INTEGER PRIMARY KEY AUTOINCREMENT,
     id_discord TEXT,
     nombre_inversion TEXT,
     tipo_inversion TEXT,
-    valor_perfil_inversor INTEGER,
+    valor_perfil_inversor REAL,  -- Cambié de INTEGER a REAL para permitir decimales
     FOREIGN KEY (id_discord) REFERENCES usuarios(id_discord)
 );
 

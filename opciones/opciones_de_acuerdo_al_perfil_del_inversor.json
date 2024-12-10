@@ -1,7 +1,7 @@
 {
   "opciones_inversion": [
     {
-      "id": 1,
+      "id_inversion": "1",
       "nombre": "Bonos del gobierno",
       "tipo_inversion": "Bonos",
       "valor_perfil_inversor": 2,
@@ -10,7 +10,7 @@
       "descripcion": "Bonos seguros emitidos por el gobierno con bajo riesgo y retorno estable."
     },
     {
-      "id": 2,
+      "id_inversion": "2",
       "nombre": "Acciones de empresas consolidadas",
       "tipo_inversion": "Acciones",
       "valor_perfil_inversor": 4,
@@ -19,7 +19,7 @@
       "descripcion": "Acciones de empresas consolidadas con historial sólido de crecimiento."
     },
     {
-      "id": 3,
+      "id_inversion": "3",
       "nombre": "Fondos mutuos de renta fija",
       "tipo_inversion": "Fondos",
       "valor_perfil_inversor": 3,
@@ -28,7 +28,7 @@
       "descripcion": "Fondos diversificados con enfoque en renta fija, ideales para minimizar riesgos."
     },
     {
-      "id": 4,
+      "id_inversion": "4",
       "nombre": "Ethereum",
       "tipo_inversion": "Criptomonedas",
       "valor_perfil_inversor": 7,
@@ -37,7 +37,16 @@
       "descripcion": "Una criptomoneda popular y líder en contratos inteligentes."
     },
     {
-      "id": 5,
+      "id_inversion": "5",
+      "nombre": "Acciones de Apple",
+      "tipo_inversion": "Acciones",
+      "valor_perfil_inversor": 5,
+      "perfil": "Moderado",
+      "precio": 150,
+      "descripcion": "Acciones de una de las compañías más valiosas y estables en el mercado."
+    },
+    {
+      "id_inversion": "6",
       "nombre": "Bonos corporativos de alto rendimiento",
       "tipo_inversion": "Bonos",
       "valor_perfil_inversor": 6,
@@ -46,16 +55,7 @@
       "descripcion": "Bonos emitidos por empresas con mayores rendimientos, pero mayor riesgo."
     },
     {
-      "id": 6,
-      "nombre": "Acciones de startups tecnológicas",
-      "tipo_inversion": "Acciones",
-      "valor_perfil_inversor": 8,
-      "perfil": "Agresivo",
-      "precio": 20,
-      "descripcion": "Acciones de startups con alto potencial de crecimiento y riesgo."
-    },
-    {
-      "id": 7,
+      "id_inversion": "7",
       "nombre": "Inversión en bienes raíces",
       "tipo_inversion": "Bienes raíces",
       "valor_perfil_inversor": 5,
@@ -64,7 +64,7 @@
       "descripcion": "Inversiones en propiedades con potencial de apreciación y generación de ingresos."
     },
     {
-      "id": 8,
+      "id_inversion": "8",
       "nombre": "Oro y metales preciosos",
       "tipo_inversion": "Commodities",
       "valor_perfil_inversor": 3,
@@ -73,13 +73,67 @@
       "descripcion": "Oro y otros metales preciosos como activos seguros en tiempos de incertidumbre."
     },
     {
-      "id": 9,
+      "id_inversion": "9",
       "nombre": "Acciones de tecnología emergente",
       "tipo_inversion": "Acciones",
       "valor_perfil_inversor": 9,
       "perfil": "Agresivo",
       "precio": 100,
       "descripcion": "Acciones de empresas tecnológicas innovadoras con alto potencial de retorno."
+    },
+    {
+      "id_inversion": "10",
+      "nombre": "Bonos municipales",
+      "tipo_inversion": "Bonos",
+      "valor_perfil_inversor": 3,
+      "perfil": "Conservador",
+      "precio": 1000,
+      "descripcion": "Bonos emitidos por gobiernos locales con menor riesgo que los bonos corporativos."
+    },
+    {
+      "id_inversion": "11",
+      "nombre": "Bitcoin (BTC)",
+      "tipo_inversion": "Criptomonedas",
+      "valor_perfil_inversor": 8,
+      "perfil": "Agresivo",
+      "precio": 30000,
+      "descripcion": "La criptomoneda más conocida y una de las más volátiles en el mercado."
+    },
+    {
+      "id_inversion": "12",
+      "nombre": "Acciones de energías renovables",
+      "tipo_inversion": "Acciones",
+      "valor_perfil_inversor": 6,
+      "perfil": "Moderado",
+      "precio": 200,
+      "descripcion": "Acciones de empresas que operan en el sector de energías renovables."
+    },
+    {
+      "id_inversion": "13",
+      "nombre": "Criptomonedas emergentes",
+      "tipo_inversion": "Criptomonedas",
+      "valor_perfil_inversor": 7,
+      "perfil": "Agresivo",
+      "precio": 300,
+      "descripcion": "Criptomonedas con alto potencial de crecimiento, pero también un alto nivel de riesgo."
+    },
+    {
+      "id_inversion": "14",
+      "nombre": "Fondos de inversión en tecnología",
+      "tipo_inversion": "Fondos",
+      "valor_perfil_inversor": 6,
+      "perfil": "Moderado",
+      "precio": 1500,
+      "descripcion": "Fondos que invierten en empresas tecnológicas con un crecimiento sólido."
+    },
+    {
+      "id_inversion": "15",
+      "nombre": "Acciones de telecomunicaciones",
+      "tipo_inversion": "Acciones",
+      "valor_perfil_inversor": 4,
+      "perfil": "Moderado",
+      "precio": 60,
+      "descripcion": "Acciones de empresas que proporcionan servicios de telecomunicaciones."
     }
   ]
 }

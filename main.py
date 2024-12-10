@@ -35,14 +35,12 @@ bot = commands.Bot(command_prefix="!", description="InvertBot", intents=intents)
 # Comando para iniciar sesión o registrarse
 @bot.command()
 async def iniciar_sesion(ctx):
-    print("intentando iniciar sesion")
     usuario_id = ctx.author.id
 
     el_usuario_existe = verificar_usuario(usuario_id)
 
     # Verificar si el usuario está registrado
     if not el_usuario_existe:
-        # Preguntar si el usuario quiere registrarse o iniciar sesión
         await ctx.send(
             f"{ctx.author.name}, ¿quieres registrarte o iniciar sesión? Responde con 'registrar' o 'iniciar'."
         )
@@ -57,7 +55,6 @@ async def iniciar_sesion(ctx):
         respuesta = await bot.wait_for("message", check=check)
 
         if respuesta.content.lower() == "registrar":
-            # Intentar registrar al usuario
             if registrar_usuario(usuario_id, ctx.author.name):
                 await ctx.send(
                     f"¡Bienvenido {ctx.author.name}! Te has registrado exitosamente."
@@ -82,27 +79,23 @@ async def perfil(ctx):
     user_id = ctx.author.id
     perfil = obtener_perfil_usuario(user_id)
 
-    # Si el perfil ya existe, mostrarlo
     if perfil:
         await ctx.send(f"Tu perfil de inversión es: {perfil}")
     else:
         await ctx.send(
             "No se ha encontrado un perfil para ti. Por favor, completa la evaluación de perfil."
         )
-        # Llamar a las preguntas para definir el perfil
         await definir_perfil(ctx)
 
 
 # Función para definir el perfil de inversión a través de preguntas
 async def definir_perfil(ctx):
     usuario_id = ctx.author.id
-    respuestas = obtener_progreso(
-        usuario_id
-    )  # Recuperar respuestas guardadas, si existen
+    respuestas = obtener_progreso(usuario_id)
 
     if respuestas:
         await ctx.send("Continuando con tu evaluación de perfil.")
-        respuestas = json.loads(respuestas)  # Convertir de JSON a diccionario
+        respuestas = json.loads(respuestas)
     else:
         respuestas = {}
         await ctx.send("Iniciando la evaluación de tu perfil de inversión.")
@@ -110,30 +103,25 @@ async def definir_perfil(ctx):
     preguntas = obtener_cuestionario_para_determinar_perfil_del_inversor()
 
     # Filtrar preguntas que faltan por responder
-    preguntas_pendientes = [(p, o) for p, o in preguntas if p not in respuestas]
+    preguntas_pendientes = [(p, o) for p, o in preguntas if p.lower() not in respuestas]
 
     for pregunta, opciones in preguntas_pendientes:
         opciones_formato = "\n".join(opciones)
         await ctx.send(f"{pregunta}\n{opciones_formato}")
 
-        # Validar respuesta del usuario
         def check(m):
-            return m.author == ctx.author and m.content.upper() in [
-                opcion[0] for opcion in opciones
+            return m.author == ctx.author and m.content.lower() in [
+                opcion[0].lower() for opcion in opciones
             ]
 
         mensaje = await bot.wait_for("message", check=check)
-        respuestas[pregunta] = mensaje.content.upper()
+        respuestas[pregunta.lower()] = mensaje.content.lower()
 
-        # Guardar el progreso parcial
         guardar_progreso(usuario_id, json.dumps(respuestas))
-        await ctx.send(f"Respuesta registrada: {mensaje.content.upper()}")
+        await ctx.send(f"Respuesta registrada: {mensaje.content.lower()}")
 
-    # Determinar el perfil basado en todas las respuestas
     perfil_sugerido = determinar_perfil(respuestas)
     await ctx.send(f"Tu perfil de inversor sugerido es: {perfil_sugerido}")
-
-    # Guardar el perfil definitivo y eliminar el progreso temporal
     guardar_perfil_usuario(usuario_id, perfil_sugerido)
     eliminar_progreso(usuario_id)
 
@@ -142,6 +130,10 @@ async def definir_perfil(ctx):
 @bot.command()
 async def depositar(ctx, monto: float):
     usuario_id = ctx.author.id
+    if not verificar_usuario(usuario_id):
+        await ctx.send("Debes iniciar sesión primero usando !iniciar_sesion.")
+        return
+
     nuevo_capital = actualizar_capital(usuario_id, monto)
     await ctx.send(f"Has depositado ${monto}. Tu saldo actual es ${nuevo_capital}.")
 
@@ -149,11 +141,15 @@ async def depositar(ctx, monto: float):
 # Comando para retirar dinero
 @bot.command()
 async def retirar(ctx, monto: float):
-    user_id = ctx.author.id
-    capital_actual = obtener_capital(user_id)
+    usuario_id = ctx.author.id
+    if not verificar_usuario(usuario_id):
+        await ctx.send("Debes iniciar sesión primero usando !iniciar_sesion.")
+        return
+
+    capital_actual = obtener_capital(usuario_id)
 
     if capital_actual >= monto:
-        nuevo_capital = actualizar_capital(user_id, -monto)
+        nuevo_capital = actualizar_capital(usuario_id, -monto)
         await ctx.send(f"Has retirado ${monto}. Tu saldo actual es ${nuevo_capital}.")
     else:
         await ctx.send(
@@ -165,17 +161,25 @@ async def retirar(ctx, monto: float):
 @bot.command()
 async def listado_de_opciones(ctx):
     usuario_id = ctx.author.id
+    if not verificar_usuario(usuario_id):
+        await ctx.send("Debes iniciar sesión primero usando !iniciar_sesion.")
+        return
+
     perfil = obtener_perfil_usuario(usuario_id)
 
     if perfil:
+        # Filtrar opciones de acuerdo al perfil
         opciones = obtener_opciones_por_perfil(perfil)
-        opciones_str = "\n".join(
-            [
-                f"{opcion['nombre']} - {opcion['tipo_inversion']} - ${opcion['precio']}"
-                for opcion in opciones
-            ]
-        )
-        await ctx.send(f"Opciones de inversión disponibles:\n{opciones_str}")
+        if opciones:
+            opciones_str = "\n".join(
+                [
+                    f"{opcion['nombre']} - {opcion['tipo_inversion']} - ${opcion['precio']}"
+                    for opcion in opciones
+                ]
+            )
+            await ctx.send(f"Opciones de inversión disponibles:\n{opciones_str}")
+        else:
+            await ctx.send("No hay opciones de inversión disponibles para tu perfil.")
     else:
         await ctx.send(
             "No se puede mostrar las opciones de inversión. Primero, define tu perfil con el comando !perfil."
@@ -184,8 +188,22 @@ async def listado_de_opciones(ctx):
 
 # Comando para invertir en una opción específica
 @bot.command()
-async def invertir(ctx, opcion: str, cantidad: float):
+async def invertir(ctx, opcion: str, monto: str):
     usuario_id = ctx.author.id
+    if not verificar_usuario(usuario_id):
+        await ctx.send("Debes iniciar sesión primero usando !iniciar_sesion.")
+        return
+
+    # Convertir el monto a minúsculas y manejar error de conversión
+    try:
+        monto = float(monto)
+    except ValueError:
+        await ctx.send(
+            f"El monto '{monto}' no es válido. Por favor, ingresa un número."
+        )
+        return
+
+    # Obtener la opción de inversión
     opciones = obtener_opciones_inversion()
     opcion_seleccionada = next(
         (op for op in opciones if op["nombre"].lower() == opcion.lower()), None
@@ -197,25 +215,37 @@ async def invertir(ctx, opcion: str, cantidad: float):
 
     capital_usuario = obtener_capital(usuario_id)
     precio_opcion = opcion_seleccionada["precio"]
-    cantidad_invertida = precio_opcion * cantidad
+    cantidad_posible = monto // precio_opcion
+    cantidad_invertida = cantidad_posible * precio_opcion
 
     if capital_usuario < cantidad_invertida:
         await ctx.send(
-            f"No tienes suficiente capital. Tu saldo es ${capital_usuario}. Intentaste invertir ${cantidad_invertida}."
+            f"No tienes suficiente capital. Tu saldo es ${capital_usuario}. Intentaste invertir ${monto}."
         )
         return
 
-    # Realizar la inversión
     realizar_inversion(
         usuario_id,
         opcion_seleccionada["nombre"],
         opcion_seleccionada["tipo_inversion"],
-        cantidad,
+        cantidad_posible,
         cantidad_invertida,
     )
     await ctx.send(
-        f"Has invertido ${cantidad_invertida} en {opcion_seleccionada['nombre']}."
+        f"Has invertido ${cantidad_invertida} en {opcion_seleccionada['nombre']} ({cantidad_posible} unidades)."
     )
+
+
+# Comando para verificar el saldo actual
+@bot.command()
+async def saldo(ctx):
+    usuario_id = ctx.author.id
+    if not verificar_usuario(usuario_id):
+        await ctx.send("Debes iniciar sesión primero usando !iniciar_sesion.")
+        return
+
+    capital_actual = obtener_capital(usuario_id)
+    await ctx.send(f"Tu saldo actual es ${capital_actual}.")
 
 
 # Evento cuando el bot está listo
@@ -225,4 +255,4 @@ async def on_ready():
 
 
 # Ejecutar el bot con el token
-bot.run("")  # No olvides reemplazarlo por tu token real
+bot.run("TU_TOKEN_AQUI")
