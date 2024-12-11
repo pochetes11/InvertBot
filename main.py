@@ -135,56 +135,57 @@ async def listado_de_opciones(ctx):
 
 
 @bot.command()
-async def invertir(ctx, opcion: str, cantidad: float = None, monto: float = None):
+async def invertir(ctx, bonos):
     usuario_id = ctx.author.id
-    if not verificar_usuario(usuario_id):
-        await ctx.send("Debes iniciar sesión primero usando !iniciar_sesion.")
+
+    # Verificar si el usuario tiene un perfil definido
+    perfil = obtener_perfil_usuario(usuario_id)
+    if not perfil:
+        await ctx.send("Primero, define tu perfil con el comando !perfil.")
+        return
+
+    # Obtener las opciones disponibles para el perfil del usuario
+    opciones = obtener_opciones_por_perfil(perfil)
+    if not opciones:
+        await ctx.send("No hay opciones disponibles para tu perfil.")
         return
 
     # Buscar la opción seleccionada
-    opciones = obtener_opciones_inversion()
-    opcion_seleccionada = next(
-        (op for op in opciones if op["nombre"].lower() == opcion.lower()), None
+    inversion = next(
+        (op for op in opciones if op["nombre"].lower() == opcion.lower()),
+        None
     )
-
-    if not opcion_seleccionada:
-        await ctx.send("Opción de inversión no encontrada.")
+    if not inversion:
+        await ctx.send(f"La opción de inversión '{opcion}' no está disponible.")
         return
 
-    if cantidad is not None:
-        # Si se proporciona una cantidad, calculamos el total invertido
-        precio_opcion = opcion_seleccionada["precio"]
-        total_invertido = cantidad * precio_opcion
-    elif monto is not None:
-        # Si se proporciona un monto, calculamos la cantidad posible a comprar
-        precio_opcion = opcion_seleccionada["precio"]
-        cantidad_posible = monto // precio_opcion
-        total_invertido = cantidad_posible * precio_opcion
-    else:
-        await ctx.send("Debes especificar una cantidad o un monto para invertir.")
-        return
+    # Calcular el precio total de la inversión
+    precio = inversion["precio"]
+    cantidad_maxima = int(cantidad / precio)  # Cantidad de unidades que puede comprar
+    total_invertido = cantidad_maxima * precio
 
-    capital_usuario = obtener_capital(usuario_id)
-
-    if capital_usuario < total_invertido:
+    # Verificar el capital del usuario
+    capital_actual = obtener_capital(usuario_id)
+    if capital_actual < total_invertido:
         await ctx.send(
-            f"No tienes suficiente capital. Tu saldo es ${capital_usuario}. Intentaste invertir ${total_invertido}."
+            f"No tienes suficiente dinero para invertir. Tu saldo actual es ${capital_actual:.2f}."
         )
         return
 
-    # Realizar la inversión
-    cantidad_invertida = cantidad_posible if monto is not None else cantidad
+    # Realizar la inversión y actualizar el capital
     realizar_inversion(
         usuario_id,
-        opcion_seleccionada["nombre"],
-        opcion_seleccionada["tipo_inversion"],
-        cantidad_invertida,
+        inversion["nombre"],
+        inversion["tipo_inversion"],
+        cantidad_maxima,
         total_invertido,
     )
 
     # Mensaje de confirmación
+    capital_restante = capital_actual - total_invertido
     await ctx.send(
-        f"Has invertido ${total_invertido} en {opcion_seleccionada['nombre']} ({cantidad_invertida} unidades)."
+        f"¡Inversión exitosa! Has invertido ${total_invertido:.2f} en {inversion['nombre']} "
+        f"({cantidad_maxima} unidades). Tu saldo restante es ${capital_restante:.2f}."
     )
 
 # Comando para depositar dinero
