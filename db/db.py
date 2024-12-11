@@ -1,6 +1,4 @@
 import sqlite3
-from perfil_de_inversor.determinar_perfil_inversor import determinar_perfil
-
 
 def inicializar_db():
     conn = sqlite3.connect("perfil_inversion.db")
@@ -14,7 +12,8 @@ def inicializar_db():
             nombre_usuario TEXT NOT NULL,
             capital REAL DEFAULT 0.0,
             fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP
-    """
+        )
+        """
     )
 
     # Crear tabla de perfiles
@@ -24,7 +23,8 @@ def inicializar_db():
             user_id TEXT PRIMARY KEY,
             perfil TEXT NOT NULL,
             FOREIGN KEY (user_id) REFERENCES usuarios(id_discord)
-    """
+        )
+        """
     )
 
     # Crear tabla de inversiones
@@ -39,7 +39,8 @@ def inicializar_db():
             valor_invertido REAL,
             fecha_inversion DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (id_discord) REFERENCES usuarios(id_discord)
-    """
+        )
+        """
     )
 
     # Crear tabla de capital (billetera virtual)
@@ -49,7 +50,8 @@ def inicializar_db():
             usuario_id TEXT PRIMARY KEY,
             capital REAL DEFAULT 0,
             FOREIGN KEY (usuario_id) REFERENCES usuarios(id_discord)
-    """
+        )
+        """
     )
 
     # Crear tabla de progreso de perfil
@@ -60,10 +62,11 @@ def inicializar_db():
             respuestas JSON,
             FOREIGN KEY (usuario_id) REFERENCES usuarios(id_discord)
         )
-    """
+        """
     )
     conn.commit()
     conn.close()
+
 
 
 # Función para iniciar sesión con un usuario existente
@@ -135,16 +138,6 @@ def obtener_perfil_usuario(usuario_id):
     return perfil[0] if perfil else None
 
 
-# Función para obtener el capital del usuario
-def obtener_capital(usuario_id):
-    conn = sqlite3.connect("perfil_inversion.db")
-    c = conn.cursor()
-    c.execute("SELECT capital FROM capital WHERE usuario_id = ?", (usuario_id,))
-    capital = c.fetchone()
-    conn.close()
-    return capital[0] if capital else 0
-
-
 # Función para actualizar el capital del usuario
 def actualizar_capital(usuario_id, monto):
     conn = sqlite3.connect("perfil_inversion.db")
@@ -171,47 +164,6 @@ def actualizar_capital(usuario_id, monto):
     conn.commit()
     conn.close()
     return new_capital  # Retorna el nuevo saldo después de la actualización
-
-
-# Función para realizar una inversión
-def realizar_inversion(
-    usuario_id, nombre_inversion, tipo_inversion, cantidad_invertida, valor_invertido
-):
-    conn = sqlite3.connect("perfil_inversion.db")
-    c = conn.cursor()
-
-    # Insertar la inversión en la tabla de inversiones
-    c.execute(
-        """
-        INSERT INTO inversiones (id_discord, nombre_inversion, tipo_inversion, cantidad_invertida, valor_invertido)
-        VALUES (?, ?, ?, ?, ?)
-    """,
-        (
-            usuario_id,
-            nombre_inversion,
-            tipo_inversion,
-            cantidad_invertida,
-            valor_invertido,
-        ),
-    )
-
-    # Actualizar el capital del usuario
-    actualizar_capital(usuario_id, -valor_invertido)  # Restar el monto invertido
-
-    conn.commit()
-    conn.close()
-
-
-def obtener_usuario(usuario_id):
-    conn = sqlite3.connect("perfil_inversion.db")
-    c = conn.cursor()
-    c.execute("SELECT usuario FROM usuarios WHERE usuario_id = ?", (usuario_id,))
-    usuario = c.fetchone()
-    conn.close()
-    if usuario:
-        return usuario[0]
-    return None
-
 
 # Función para guardar o actualizar el perfil de un usuario
 def guardar_perfil_usuario(usuario_id, perfil):
@@ -365,11 +317,3 @@ def gestionar_capital(usuario_id, cantidad, operacion):
     conn.commit()
     conn.close()
 
-
-def obtener_capital(usuario_id):
-    conn = sqlite3.connect("perfil_inversion.db")
-    c = conn.cursor()
-    c.execute("SELECT capital FROM capital WHERE usuario_id = ?", (usuario_id,))
-    capital = c.fetchone()
-    conn.close()
-    return capital[0] if capital else 0

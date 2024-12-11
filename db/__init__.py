@@ -1,5 +1,4 @@
 import sqlite3
-
 # Función para inicializar la base de datos
 def inicializar_db():
     conn = sqlite3.connect('perfil_inversion.db')  # Crea o abre la base de datos

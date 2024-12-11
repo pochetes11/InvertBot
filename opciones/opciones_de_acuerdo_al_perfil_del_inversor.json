@@ -2,21 +2,21 @@
   "opciones_inversion": [
     {
       "id_inversion": "1",
-      "nombre": "Bonos del gobierno",
+      "nombre": "Bonos AL30 ",
       "tipo_inversion": "Bonos",
       "valor_perfil_inversor": 2,
       "perfil": "Conservador",
-      "precio": 1000,
+      "precio": 10,
       "descripcion": "Bonos seguros emitidos por el gobierno con bajo riesgo y retorno estable."
     },
     {
       "id_inversion": "2",
-      "nombre": "Acciones de empresas consolidadas",
+      "nombre": "Acciones de Apple",
       "tipo_inversion": "Acciones",
       "valor_perfil_inversor": 4,
       "perfil": "Moderado",
-      "precio": 50,
-      "descripcion": "Acciones de empresas consolidadas con historial sólido de crecimiento."
+      "precio": 225,
+      "descripcion": "Acciones de una de las compañías más valiosas y estables en el mercado."
     },
     {
       "id_inversion": "3",
@@ -33,17 +33,17 @@
       "tipo_inversion": "Criptomonedas",
       "valor_perfil_inversor": 7,
       "perfil": "Agresivo",
-      "precio": 1800,
+      "precio": 5,
       "descripcion": "Una criptomoneda popular y líder en contratos inteligentes."
     },
     {
       "id_inversion": "5",
-      "nombre": "Acciones de Apple",
+      "nombre": "Acciones de Tesla",
       "tipo_inversion": "Acciones",
       "valor_perfil_inversor": 5,
       "perfil": "Moderado",
-      "precio": 150,
-      "descripcion": "Acciones de una de las compañías más valiosas y estables en el mercado."
+      "precio": 250,
+      "descripcion": "https://liebrecapital.com.ar/yahoo-finanzas-tesla/#google_vignette"
     },
     {
       "id_inversion": "6",

@@ -1,7 +1,5 @@
 import random
 
-from db import rehacer_perfil_usuario
-
 
 # Opciones de inversión predefinidas
 def obtener_opciones_inversion():

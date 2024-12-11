@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS inversiones (
     id_discord TEXT,
     nombre_inversion TEXT,
     tipo_inversion TEXT,
-    valor_perfil_inversor REAL,  -- Cambié de INTEGER a REAL para permitir decimales
+    valor_perfil_inversor REAL,  -- Permitir decimales
     FOREIGN KEY (id_discord) REFERENCES usuarios(id_discord)
 );
 
