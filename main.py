@@ -45,7 +45,9 @@ async def iniciar_sesion(ctx):
         await ctx.send(f"¡Bienvenido de nuevo, {ctx.author.name}!")
         return
 
-    await ctx.send(f"{ctx.author.name}, ¿quieres registrarte o iniciar sesión? Responde con 'registrar'.")
+    await ctx.send(
+        f"{ctx.author.name}, ¿quieres registrarte o iniciar sesión? Responde con 'registrar'."
+    )
 
     def check(m):
         return m.author == ctx.author and m.content.lower() == "registrar"
@@ -53,11 +55,15 @@ async def iniciar_sesion(ctx):
     try:
         await bot.wait_for("message", check=check, timeout=30)
         if registrar_usuario(usuario_id, ctx.author.name):
-            await ctx.send(f"¡Bienvenido, {ctx.author.name}! Te has registrado con éxito.")
+            await ctx.send(
+                f"¡Bienvenido, {ctx.author.name}! Te has registrado con éxito."
+            )
         else:
             await ctx.send("Ocurrió un problema al registrarte. Intenta nuevamente.")
     except TimeoutError:
-        await ctx.send("No respondiste a tiempo. Intenta de nuevo con `!iniciar_sesion`.")
+        await ctx.send(
+            "No respondiste a tiempo. Intenta de nuevo con `!iniciar_sesion`."
+        )
 
 
 # Comando para obtener el perfil de inversión del usuario
@@ -88,19 +94,16 @@ async def definir_perfil(ctx):
         await ctx.send("Iniciando la evaluación de tu perfil de inversión.")
 
     preguntas = obtener_cuestionario_para_determinar_perfil_del_inversor()
-    preguntas_pendientes = [
-        (p, o) for p, o in preguntas if p.lower() not in respuestas
-    ]
+    preguntas_pendientes = [(p, o) for p, o in preguntas if p.lower() not in respuestas]
 
     for pregunta, opciones in preguntas_pendientes:
         opciones_formato = "\n".join(opciones)
         await ctx.send(f"{pregunta}\n{opciones_formato}")
 
         def check(m):
-            return (
-                m.author == ctx.author
-                and m.content.upper() in [op[0] for op in opciones]
-            )
+            return m.author == ctx.author and m.content.upper() in [
+                op[0] for op in opciones
+            ]
 
         mensaje = await bot.wait_for("message", check=check)
         respuestas[pregunta.lower()] = mensaje.content.upper()
@@ -114,79 +117,147 @@ async def definir_perfil(ctx):
     await ctx.send(f"Tu perfil de inversor sugerido es: {perfil_sugerido}")
 
 
-
 # Comando para listar las opciones de inversión
 @bot.command()
 async def listado_de_opciones(ctx):
-    usuario_id = ctx.author.id
-    perfil = obtener_perfil_usuario(usuario_id)
+    opciones = (
+        obtener_opciones_inversion()
+    )  # Asegúrate de que este código esté recuperando las opciones
 
-    if perfil:
-        opciones = obtener_opciones_por_perfil(perfil)
-        opciones_str = "\n".join(
-            [
-                f"{opcion['nombre']} - {opcion['tipo_inversion']} - ${opcion['precio']}"
-                for opcion in opciones
-            ]
+    if not opciones:
+        await ctx.send("No hay opciones de inversión disponibles.")
+        return
+
+    mensaje = "Opciones de inversión disponibles:\n\n"
+    for idx, opcion in enumerate(opciones, start=1):
+        mensaje += (
+            f"{idx}. **{opcion.get('nombre', 'Nombre no disponible')}**\n"
+            f"   - Precio: ${opcion.get('precio', 'Precio no disponible')}\n"
+            f"   - Tipo: {opcion.get('tipo_inversion', 'Tipo no disponible')}\n"
         )
-        await ctx.send(f"Opciones de inversión disponibles:\n{opciones_str}")
-    else:
-        await ctx.send("Primero, define tu perfil con el comando !perfil.")
+
+        # Verificar si el mensaje excede los 2000 caracteres y enviarlo en partes
+        if len(mensaje) > 2000:
+            await ctx.send(mensaje)  # Enviar la parte del mensaje
+            mensaje = ""  # Restablecer el mensaje para la siguiente parte
+
+    # Enviar la última parte si es necesario
+    if mensaje:
+        await ctx.send(mensaje)
 
 
 @bot.command()
-async def invertir(ctx, bonos):
+async def mas_info(ctx, opcion_numero: int):
+    opciones = obtener_opciones_inversion()
+
+    if not opciones:
+        await ctx.send("No hay opciones de inversión disponibles.")
+        return
+
+    if opcion_numero < 1 or opcion_numero > len(opciones):
+        await ctx.send("Opción inválida. Por favor, selecciona un número válido.")
+        return
+
+    opcion = opciones[opcion_numero - 1]  # Restar 1 para acceder al índice correcto
+
+    descripcion = opcion.get("descripcion", "Descripción no disponible")
+    link = opcion.get("link", "No hay más información disponible")
+
+    await ctx.send(
+        f"**{opcion['nombre']}** - Más información:\n"
+        f"   - Descripción: {descripcion}\n"
+        f"   - Más información: {link}\n"
+    )
+
+
+@bot.command()
+async def invertir(ctx):
     usuario_id = ctx.author.id
 
-    # Verificar si el usuario tiene un perfil definido
     perfil = obtener_perfil_usuario(usuario_id)
     if not perfil:
         await ctx.send("Primero, define tu perfil con el comando !perfil.")
         return
 
-    # Obtener las opciones disponibles para el perfil del usuario
-    opciones = obtener_opciones_por_perfil(perfil)
+    # Obtener las opciones de inversión desde la base de datos
+    opciones = obtener_opciones_inversion()  # Aquí estamos obteniendo las opciones
+
     if not opciones:
         await ctx.send("No hay opciones disponibles para tu perfil.")
         return
 
-    # Buscar la opción seleccionada
-    inversion = next(
-        (op for op in opciones if op["nombre"].lower() == opcion.lower()),
-        None
-    )
-    if not inversion:
-        await ctx.send(f"La opción de inversión '{opcion}' no está disponible.")
-        return
-
-    # Calcular el precio total de la inversión
-    precio = inversion["precio"]
-    cantidad_maxima = int(cantidad / precio)  # Cantidad de unidades que puede comprar
-    total_invertido = cantidad_maxima * precio
-
-    # Verificar el capital del usuario
-    capital_actual = obtener_capital(usuario_id)
-    if capital_actual < total_invertido:
-        await ctx.send(
-            f"No tienes suficiente dinero para invertir. Tu saldo actual es ${capital_actual:.2f}."
+    mensaje = "Opciones de inversión disponibles:\n\n"
+    for idx, opcion in enumerate(opciones, start=1):
+        mensaje += (
+            f"{idx}. **{opcion['nombre']}**\n"
+            f"   - Precio: ${opcion['precio']}\n"
+            f"   - Tipo: {opcion['tipo_inversion']}\n"
+            f"   - Descripción: {opcion['descripcion']}\n"
+            f"   👉 Más información: {opcion['link']}\n\n"
         )
-        return
+    mensaje += "\nResponde con el número de la opción en la que deseas invertir."
 
-    # Realizar la inversión y actualizar el capital
-    realizar_inversion(
-        usuario_id,
-        inversion["nombre"],
-        inversion["tipo_inversion"],
-        cantidad_maxima,
-        total_invertido,
-    )
+    await ctx.send(mensaje)
 
-    # Mensaje de confirmación
-    capital_restante = capital_actual - total_invertido
-    await ctx.send(
-        f"¡Inversión exitosa! Has invertido ${total_invertido:.2f} en {inversion['nombre']} "
-        f"({cantidad_maxima} unidades). Tu saldo restante es ${capital_restante:.2f}."
-    )
+    def check(m):
+        return m.author == ctx.author and m.content.isdigit()
+
+    try:
+        respuesta = await bot.wait_for("message", check=check, timeout=60)
+        opcion_index = int(respuesta.content.strip()) - 1
+
+        if opcion_index < 0 or opcion_index >= len(opciones):
+            await ctx.send("Por favor, selecciona una opción válida.")
+            return
+
+        opcion_seleccionada = opciones[
+            opcion_index
+        ]  # Aquí se obtiene la opción seleccionada
+
+        # Preguntar por la cantidad que desea invertir
+        await ctx.send(
+            f"Has seleccionado **{opcion_seleccionada['nombre']}**. ¿Cuánto dinero deseas invertir?"
+        )
+
+        def monto_check(m):
+            return m.author == ctx.author and m.content.replace(".", "", 1).isdigit()
+
+        monto_respuesta = await bot.wait_for("message", check=monto_check, timeout=60)
+        monto = float(monto_respuesta.content.strip())
+
+        if monto <= 0:
+            await ctx.send("Por favor, ingresa un monto válido.")
+            return
+
+        precio = opcion_seleccionada["precio"]
+        cantidad_maxima = int(monto // precio)
+        total_invertido = cantidad_maxima * precio
+
+        capital_actual = obtener_capital(usuario_id)
+        if capital_actual < total_invertido:
+            await ctx.send(
+                f"No tienes suficiente dinero para invertir. Tu saldo actual es ${capital_actual:.2f}."
+            )
+            return
+
+        realizar_inversion(
+            usuario_id,
+            opcion_seleccionada["nombre"],
+            opcion_seleccionada["tipo_inversion"],
+            cantidad_maxima,
+            total_invertido,
+        )
+
+        # Mensaje de confirmación
+        capital_restante = capital_actual - total_invertido
+        await ctx.send(
+            f"¡Inversión exitosa! Has invertido ${total_invertido:.2f} en {opcion_seleccionada['nombre']} "
+            f"({cantidad_maxima} unidades). Tu saldo restante es ${capital_restante:.2f}."
+        )
+
+    except TimeoutError:
+        await ctx.send("No respondiste a tiempo. Intenta nuevamente con `!invertir`.")
+
 
 # Comando para depositar dinero
 @bot.command()
@@ -238,7 +309,6 @@ async def retirar(ctx, monto: float):
         )
 
 
-
 # Comando para listar las opciones de inversión
 @bot.command()
 async def opciones_inversion(ctx):
@@ -267,6 +337,7 @@ async def opciones_inversion(ctx):
             "No se puede mostrar las opciones de inversión. Primero, define tu perfil con el comando !perfil."
         )
 
+
 # Comando para verificar el saldo actual
 @bot.command()
 async def saldo(ctx):
@@ -286,4 +357,4 @@ async def on_ready():
 
 
 # Ejecutar el bot con el token
-bot.run("")
+bot.run("MTI0NTg1NjQ5ODcyNzUxODI0OQ.GLrREt.Tq3rVusBK7FGGaMRAP8vjqbKXuRD9LqKswK_Sw")
