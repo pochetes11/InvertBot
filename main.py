@@ -357,4 +357,4 @@ async def on_ready():
 
 
 # Ejecutar el bot con el token
-bot.run("MTI0NTg1NjQ5ODcyNzUxODI0OQ.GLrREt.Tq3rVusBK7FGGaMRAP8vjqbKXuRD9LqKswK_Sw")
+bot.run("")
