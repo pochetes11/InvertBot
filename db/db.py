@@ -67,8 +67,6 @@ def inicializar_db():
     conn.commit()
     conn.close()
 
-
-
 # Función para iniciar sesión con un usuario existente
 def iniciar_sesion(usuario_id):
     conn = sqlite3.connect("perfil_inversion.db")
@@ -84,7 +82,7 @@ def iniciar_sesion(usuario_id):
     else:
         return False  # Usuario no encontrado, sesión no iniciada
 
-
+# Función para registrar un nuevo usuario
 def registrar_usuario(usuario_id, nombre_usuario):
     conn = sqlite3.connect("perfil_inversion.db")
     c = conn.cursor()
@@ -100,21 +98,17 @@ def registrar_usuario(usuario_id, nombre_usuario):
     conn.close()
     return True
 
-
 # Función para verificar si un usuario ya está registrado
 def verificar_usuario(usuario_id):
     conn = sqlite3.connect("perfil_inversion.db")
     c = conn.cursor()
-
-    # Comprobamos si el usuario ya está registrado
     c.execute("SELECT id_discord FROM usuarios WHERE id_discord = ?", (usuario_id,))
     if c.fetchone():
         conn.close()
-        return True  # Usuario ya registrado
+        return True
 
     conn.close()
-    return False  # Usuario no registrado
-
+    return False
 
 # Función para obtener un usuario por ID
 def obtener_usuario(usuario_id):
@@ -124,9 +118,8 @@ def obtener_usuario(usuario_id):
     usuario = c.fetchone()
     conn.close()
     if usuario:
-        return usuario[0]  # Retorna el nombre del usuario
-    return None  # Si el usuario no existe, retorna None
-
+        return usuario[0]
+    return None
 
 # Función para obtener el perfil de un usuario
 def obtener_perfil_usuario(usuario_id):
@@ -136,34 +129,6 @@ def obtener_perfil_usuario(usuario_id):
     perfil = c.fetchone()
     conn.close()
     return perfil[0] if perfil else None
-
-
-# Función para actualizar el capital del usuario
-def actualizar_capital(usuario_id, monto):
-    conn = sqlite3.connect("perfil_inversion.db")
-    c = conn.cursor()
-
-    # Obtener el saldo actual del usuario
-    c.execute("SELECT capital FROM capital WHERE usuario_id = ?", (usuario_id,))
-    capital_actual = c.fetchone()
-
-    if capital_actual:
-        # Si el usuario ya tiene un capital, actualizamos el saldo
-        new_capital = capital_actual[0] + monto
-        c.execute(
-            "UPDATE capital SET capital = ? WHERE usuario_id = ?",
-            (new_capital, usuario_id),
-        )
-    else:
-        # Si el usuario no tiene un capital, lo insertamos
-        c.execute(
-            "INSERT INTO capital (usuario_id, capital) VALUES (?, ?)",
-            (usuario_id, monto),
-        )
-
-    conn.commit()
-    conn.close()
-    return new_capital  # Retorna el nuevo saldo después de la actualización
 
 # Función para guardar o actualizar el perfil de un usuario
 def guardar_perfil_usuario(usuario_id, perfil):
@@ -181,7 +146,7 @@ def guardar_perfil_usuario(usuario_id, perfil):
     conn.commit()
     conn.close()
 
-
+# Función para eliminar el perfil de un usuario
 def eliminar_perfil_usuario(usuario_id):
     conn = sqlite3.connect("perfil_inversion.db")
     c = conn.cursor()
@@ -194,7 +159,6 @@ def eliminar_perfil_usuario(usuario_id):
     conn.close()
     return f"El perfil de {usuario_id} ha sido eliminado."
 
-
 # Función para obtener el capital actual de un usuario
 def obtener_capital(usuario_id):
     conn = sqlite3.connect("perfil_inversion.db")
@@ -204,25 +168,21 @@ def obtener_capital(usuario_id):
     conn.close()
     return capital[0] if capital else 0
 
-
 # Función para actualizar el capital de un usuario
 def actualizar_capital(usuario_id, monto):
     conn = sqlite3.connect("perfil_inversion.db")
     c = conn.cursor()
 
-    # Obtener el saldo actual del usuario
     c.execute("SELECT capital FROM capital WHERE usuario_id = ?", (usuario_id,))
     capital_actual = c.fetchone()
 
     if capital_actual:
-        # Si el usuario ya tiene un capital, actualizamos el saldo
         new_capital = capital_actual[0] + monto
         c.execute(
             "UPDATE capital SET capital = ? WHERE usuario_id = ?",
             (new_capital, usuario_id),
         )
     else:
-        # Si el usuario no tiene un capital, lo insertamos
         c.execute(
             "INSERT INTO capital (usuario_id, capital) VALUES (?, ?)",
             (usuario_id, monto),
@@ -230,8 +190,53 @@ def actualizar_capital(usuario_id, monto):
 
     conn.commit()
     conn.close()
-    return new_capital  # Retorna el nuevo saldo después de la actualización
+    return new_capital
 
+# Función para retirar dinero de un usuario
+def retirar_capital(usuario_id, monto):
+    conn = sqlite3.connect("perfil_inversion.db")
+    c = conn.cursor()
+    c.execute("SELECT capital FROM capital WHERE usuario_id = ?", (usuario_id,))
+    capital_actual = c.fetchone()
+
+    if not capital_actual or capital_actual[0] < monto:
+        conn.close()
+        return "Fondos insuficientes para retirar."
+
+    nuevo_capital = capital_actual[0] - monto
+    c.execute(
+        "UPDATE capital SET capital = ? WHERE usuario_id = ?",
+        (nuevo_capital, usuario_id),
+    )
+    conn.commit()
+    conn.close()
+    return nuevo_capital
+
+# Función para depositar dinero a un usuario
+def depositar_capital(usuario_id, monto):
+    if monto <= 0:
+        return "El monto a depositar debe ser positivo."
+
+    conn = sqlite3.connect("perfil_inversion.db")
+    c = conn.cursor()
+    c.execute("SELECT capital FROM capital WHERE usuario_id = ?", (usuario_id,))
+    capital_actual = c.fetchone()
+
+    if capital_actual:
+        nuevo_capital = capital_actual[0] + monto
+        c.execute(
+            "UPDATE capital SET capital = ? WHERE usuario_id = ?",
+            (nuevo_capital, usuario_id),
+        )
+    else:
+        c.execute(
+            "INSERT INTO capital (usuario_id, capital) VALUES (?, ?)",
+            (usuario_id, monto),
+        )
+
+    conn.commit()
+    conn.close()
+    return nuevo_capital
 
 # Función para guardar el progreso de las respuestas
 def guardar_progreso(usuario_id, respuestas_json):
@@ -247,7 +252,6 @@ def guardar_progreso(usuario_id, respuestas_json):
     conn.commit()
     conn.close()
 
-
 # Función para obtener el progreso guardado
 def obtener_progreso(usuario_id):
     conn = sqlite3.connect("perfil_inversion.db")
@@ -259,7 +263,6 @@ def obtener_progreso(usuario_id):
         return progreso[0]
     return None
 
-
 # Función para eliminar el progreso del perfil
 def eliminar_progreso(usuario_id):
     conn = sqlite3.connect("perfil_inversion.db")
@@ -267,7 +270,6 @@ def eliminar_progreso(usuario_id):
     c.execute("DELETE FROM progreso WHERE usuario_id = ?", (usuario_id,))
     conn.commit()
     conn.close()
-
 
 # Función para realizar una inversión
 def realizar_inversion(
@@ -292,7 +294,7 @@ def realizar_inversion(
     conn.commit()
     conn.close()
 
-
+# Función para gestionar capital (suma/resta)
 def gestionar_capital(usuario_id, cantidad, operacion):
     conn = sqlite3.connect("perfil_inversion.db")
     c = conn.cursor()
@@ -316,4 +318,3 @@ def gestionar_capital(usuario_id, cantidad, operacion):
         )
     conn.commit()
     conn.close()
-

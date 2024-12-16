@@ -25,10 +25,10 @@ CREATE TABLE IF NOT EXISTS respuestas_perfil (
     horizonte_temporal TEXT,
     tiempo_mantener TEXT,
     nivel_experiencia TEXT,
-    capital_inicial TEXT,
-    ingreso_anual TEXT,
+    capital_inicial REAL,  -- Cambiar a REAL si es un valor numérico
+    ingreso_anual REAL,    -- Cambiar a REAL si es un valor numérico
     nivel_deuda TEXT,
-    porcentaje_ingresos_invertir TEXT,
+    porcentaje_ingresos_invertir REAL,  -- Cambiar a REAL si es un porcentaje
     tolerancia_riesgo TEXT,
     inversiones_activas TEXT,
     ingresos_o_crecimiento TEXT,
